@@ -158,6 +158,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.venv/
 
 # Spyder project settings
 .spyderproject
@@ -218,3 +219,33 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+
+# ==========================================
+# FINTECH PORTFOLIO - PROJECT-SPECIFIC RULES
+# ==========================================
+
+# Raw downloaded datasets
+data/raw/
+
+# Generated or processed datasets
+data/processed/
+
+# Local SQLite databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Environment variables and credentials
+.env.*
+!.env.example
+
+# Local Streamlit secrets
+.streamlit/secrets.toml
+
+# Temporary exports and backups
+*.bak
+*.tmp
+
+# Keep small, synthetic example datasets
+!data/sample/
