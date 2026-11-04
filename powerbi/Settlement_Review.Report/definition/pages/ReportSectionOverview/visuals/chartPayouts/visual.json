@@ -1,16 +1,16 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.1.0/schema.json",
-  "name": "visual0005",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "chartPayouts",
   "position": {
     "x": 12,
-    "y": 167,
-    "width": 915,
-    "height": 239,
-    "z": 4,
-    "tabOrder": 4
+    "y": 436,
+    "z": 7,
+    "height": 292,
+    "width": 1256,
+    "tabOrder": 7
   },
   "visual": {
-    "visualType": "barChart",
+    "visualType": "clusteredColumnChart",
     "query": {
       "queryState": {
         "Category": {
@@ -20,14 +20,15 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "Ledger"
+                      "Entity": "Payouts"
                     }
                   },
-                  "Property": "Outcome"
+                  "Property": "Settled on"
                 }
               },
-              "queryRef": "Ledger.Outcome",
-              "nativeQueryRef": "Outcome"
+              "queryRef": "Payouts.Settled on",
+              "nativeQueryRef": "Settled on",
+              "active": true
             }
           ]
         },
@@ -38,14 +39,28 @@
                 "Measure": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "Ledger"
+                      "Entity": "Payouts"
                     }
                   },
-                  "Property": "Orders"
+                  "Property": "Gateway paid INR"
                 }
               },
-              "queryRef": "Ledger.Orders",
-              "nativeQueryRef": "Orders"
+              "queryRef": "Payouts.Gateway paid INR",
+              "nativeQueryRef": "Gateway paid INR"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Payouts"
+                    }
+                  },
+                  "Property": "Bank received INR"
+                }
+              },
+              "queryRef": "Payouts.Bank received INR",
+              "nativeQueryRef": "Bank received INR"
             }
           ]
         }
@@ -54,16 +69,16 @@
         "sort": [
           {
             "field": {
-              "Measure": {
+              "Column": {
                 "Expression": {
                   "SourceRef": {
-                    "Entity": "Ledger"
+                    "Entity": "Payouts"
                   }
                 },
-                "Property": "Orders"
+                "Property": "Settled on"
               }
             },
-            "direction": "Descending"
+            "direction": "Ascending"
           }
         ]
       }
@@ -82,7 +97,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Orders by reconciliation outcome'"
+                  "Value": "'Gateway payouts vs bank credits by payout date - INR'"
                 }
               }
             }

@@ -1,0 +1,32 @@
+{
+  "as_of": "2026-11-02",
+  "orders": 10000,
+  "status_counts": {
+    "BANK_CREDIT_MISSING": 289,
+    "BATCH_SHORT_CREDITED": 274,
+    "DUPLICATE_SETTLEMENT": 40,
+    "FEE_MISMATCH": 150,
+    "IN_TRANSIT": 500,
+    "MATCHED": 7607,
+    "MERCHANT_ORDER_MISSING": 30,
+    "MISSING_SETTLEMENT": 200,
+    "ORDER_PAYMENT_MISMATCH": 50,
+    "PAYMENT_FAILED": 400,
+    "PAYMENT_RECORD_MISSING": 20,
+    "REFUNDED": 350,
+    "REFUND_MISMATCH": 40,
+    "UNEXPECTED_SETTLEMENT": 50
+  },
+  "batch_status_counts": {
+    "BANK_CREDIT_MISSING": 1,
+    "CREDITED": 18,
+    "SHORT_CREDITED": 1
+  },
+  "order_level_shortfall_inr": "2534880.65",
+  "batch_level_shortfall_inr": "1180.00",
+  "total_recoverable_inr": "2536060.65",
+  "overpaid_to_merchant_inr": "462031.50",
+  "in_transit_inr": "2425700.46",
+  "unmatched_bank_credits": 25,
+  "orphan_gateway_lines": 0
+}

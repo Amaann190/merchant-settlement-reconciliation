@@ -264,6 +264,9 @@ data/processed/
 !data/processed/
 data/processed/*
 !data/processed/reconciliation_report.csv
+!data/processed/settlement_batches.csv
+!data/processed/unmatched_bank_lines.csv
+!data/processed/summary.json
 
 # Recreated by the seeded ledger generator
 /data/generated/

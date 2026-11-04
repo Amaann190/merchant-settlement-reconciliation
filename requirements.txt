@@ -1,0 +1,2 @@
+# The pipeline uses only the Python standard library. pytest runs the test suite.
+pytest==9.1.1

@@ -1,0 +1,189 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.1.0/schema.json",
+  "name": "tablePayouts",
+  "position": {
+    "x": 12,
+    "y": 164,
+    "width": 1256,
+    "height": 564,
+    "z": 4,
+    "tabOrder": 4
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Payouts"
+                    }
+                  },
+                  "Property": "Settled on"
+                }
+              },
+              "queryRef": "Payouts.Settled on",
+              "nativeQueryRef": "Settled on"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Payouts"
+                    }
+                  },
+                  "Property": "UTR"
+                }
+              },
+              "queryRef": "Payouts.UTR",
+              "nativeQueryRef": "UTR"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Payouts"
+                    }
+                  },
+                  "Property": "Status"
+                }
+              },
+              "queryRef": "Payouts.Status",
+              "nativeQueryRef": "Status"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Payouts"
+                    }
+                  },
+                  "Property": "Lines"
+                }
+              },
+              "queryRef": "Payouts.Lines",
+              "nativeQueryRef": "Lines"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Payouts"
+                    }
+                  },
+                  "Property": "Gateway net"
+                }
+              },
+              "queryRef": "Payouts.Gateway net",
+              "nativeQueryRef": "Gateway net"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Payouts"
+                    }
+                  },
+                  "Property": "Bank credit"
+                }
+              },
+              "queryRef": "Payouts.Bank credit",
+              "nativeQueryRef": "Bank credit"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Payouts"
+                    }
+                  },
+                  "Property": "Difference"
+                }
+              },
+              "queryRef": "Payouts.Difference",
+              "nativeQueryRef": "Difference"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Payouts"
+                    }
+                  },
+                  "Property": "Bank value date"
+                }
+              },
+              "queryRef": "Payouts.Bank value date",
+              "nativeQueryRef": "Bank value date"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Payouts"
+                    }
+                  },
+                  "Property": "Settlement ID"
+                }
+              },
+              "queryRef": "Payouts.Settlement ID",
+              "nativeQueryRef": "Settlement ID"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "Payouts"
+                  }
+                },
+                "Property": "Settled on"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ]
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Payouts matched to bank credits by UTR - INR'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

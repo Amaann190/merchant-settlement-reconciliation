@@ -1,13 +1,13 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.1.0/schema.json",
-  "name": "visual0006",
+  "name": "tableOrders",
   "position": {
-    "x": 12,
-    "y": 420,
-    "width": 1254,
-    "height": 305,
-    "z": 5,
-    "tabOrder": 5
+    "x": 274,
+    "y": 12,
+    "width": 994,
+    "height": 716,
+    "z": 1,
+    "tabOrder": 1
   },
   "visual": {
     "visualType": "tableEx",
@@ -51,11 +51,11 @@
                       "Entity": "Ledger"
                     }
                   },
-                  "Property": "Exception flags"
+                  "Property": "Difference"
                 }
               },
-              "queryRef": "Ledger.Exception flags",
-              "nativeQueryRef": "Exception flags"
+              "queryRef": "Ledger.Difference",
+              "nativeQueryRef": "Difference"
             },
             {
               "field": {
@@ -93,25 +93,81 @@
                       "Entity": "Ledger"
                     }
                   },
-                  "Property": "Difference"
+                  "Property": "Contract charges"
                 }
               },
-              "queryRef": "Ledger.Difference",
-              "nativeQueryRef": "Difference"
+              "queryRef": "Ledger.Contract charges",
+              "nativeQueryRef": "Contract charges"
             },
             {
               "field": {
-                "Measure": {
+                "Column": {
                   "Expression": {
                     "SourceRef": {
                       "Entity": "Ledger"
                     }
                   },
-                  "Property": "Shortfall INR"
+                  "Property": "Deducted charges"
                 }
               },
-              "queryRef": "Ledger.Shortfall INR",
-              "nativeQueryRef": "Shortfall INR"
+              "queryRef": "Ledger.Deducted charges",
+              "nativeQueryRef": "Deducted charges"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Ledger"
+                    }
+                  },
+                  "Property": "Captured on"
+                }
+              },
+              "queryRef": "Ledger.Captured on",
+              "nativeQueryRef": "Captured on"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Ledger"
+                    }
+                  },
+                  "Property": "UTR"
+                }
+              },
+              "queryRef": "Ledger.UTR",
+              "nativeQueryRef": "UTR"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Ledger"
+                    }
+                  },
+                  "Property": "Payment ID"
+                }
+              },
+              "queryRef": "Ledger.Payment ID",
+              "nativeQueryRef": "Payment ID"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Ledger"
+                    }
+                  },
+                  "Property": "Exception flags"
+                }
+              },
+              "queryRef": "Ledger.Exception flags",
+              "nativeQueryRef": "Exception flags"
             }
           ]
         }
@@ -120,13 +176,13 @@
         "sort": [
           {
             "field": {
-              "Measure": {
+              "Column": {
                 "Expression": {
                   "SourceRef": {
                     "Entity": "Ledger"
                   }
                 },
-                "Property": "Shortfall INR"
+                "Property": "Difference"
               }
             },
             "direction": "Descending"
@@ -148,7 +204,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Order investigation - amounts in INR'"
+                  "Value": "'Orders, largest shortfall first - INR'"
                 }
               }
             }

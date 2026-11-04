@@ -1,192 +1,74 @@
-
-from pathlib import Path
-from decimal import Decimal
-import sqlite3
+"""Load the reconciliation outputs into SQLite (amounts as integer paise) and print the review queue."""
 import csv
+import sqlite3
+from pathlib import Path
 
-# ==========================================
-# 1. DEFINE FILE LOCATIONS
-# ==========================================
+from reconcile import optional_paise, rupees
 
 ROOT = Path(__file__).resolve().parent
+PROCESSED = ROOT / "data/processed"
+DATABASE = PROCESSED / "reconciliation.db"
 
-REPORT = (
-    ROOT / "data/processed/reconciliation_report.csv"
-)
+ORDER_MONEY = ["expected_net", "actual_net", "difference", "contract_charges", "deducted_charges",
+               "merchant_refunds", "gateway_refunds"]
+BATCH_MONEY = ["gateway_net", "bank_credit", "difference"]
 
-DATABASE = (
-    ROOT / "data/processed/reconciliation.db"
-)
+SCHEMA = """
+DROP TABLE IF EXISTS reconciliation_results;
+DROP TABLE IF EXISTS settlement_batches;
+CREATE TABLE reconciliation_results (
+    order_id TEXT PRIMARY KEY, status TEXT NOT NULL,
+    expected_net_paise INTEGER, actual_net_paise INTEGER, difference_paise INTEGER,
+    exception_flags TEXT, payment_id TEXT, captured_on TEXT, settlement_id TEXT, settled_on TEXT,
+    utr TEXT, contract_charges_paise INTEGER, deducted_charges_paise INTEGER,
+    merchant_refunds_paise INTEGER, gateway_refunds_paise INTEGER);
+CREATE TABLE settlement_batches (
+    settlement_id TEXT PRIMARY KEY, settled_on TEXT NOT NULL, utr TEXT NOT NULL, line_count INTEGER,
+    gateway_net_paise INTEGER, bank_credit_paise INTEGER, difference_paise INTEGER,
+    status TEXT NOT NULL, bank_value_date TEXT);
+CREATE INDEX idx_results_status ON reconciliation_results(status);
+"""
 
-if not REPORT.exists():
-    raise FileNotFoundError(
-        "Run reconcile.py before building the database."
-    )
-
-
-# ==========================================
-# 2. CONVERT RUPEES TO INTEGER PAISE
-# ==========================================
-
-def to_paise(value):
-
-    if value is None or str(value).strip() == "":
-        return None
-
-    amount = Decimal(value)
-
-    if not amount.is_finite():
-        raise ValueError("Invalid monetary amount")
-
-    paise = amount * 100
-
-    if paise != paise.to_integral_value():
-        raise ValueError(
-            f"Amount contains fractional paise: {value}"
-        )
-
-    return int(paise)
+QUERIES = {
+    "Outcomes": """
+        SELECT status, COUNT(*), SUM(CASE WHEN difference_paise > 0 THEN difference_paise ELSE 0 END)
+        FROM reconciliation_results GROUP BY status ORDER BY 3 DESC, 2 DESC""",
+    "Payouts needing follow-up": """
+        SELECT settled_on, utr, status, difference_paise FROM settlement_batches
+        WHERE status <> 'CREDITED' ORDER BY settled_on""",
+    "Largest recoverable orders": """
+        SELECT order_id, status, difference_paise FROM reconciliation_results
+        WHERE difference_paise > 0 ORDER BY difference_paise DESC LIMIT 5""",
+}
 
 
-# ==========================================
-# 3. READ RECONCILIATION RESULTS
-# ==========================================
-
-records = []
-
-with REPORT.open(
-    newline="", encoding="utf-8-sig"
-) as file:
-
-    reader = csv.DictReader(file)
-
-    for row in reader:
-
-        records.append((
-            row["order_id"],
-            row["status"],
-            to_paise(row["expected_net"]),
-            to_paise(row["actual_net"]),
-            to_paise(row["difference"]), row["exception_flags"]
-        ))
-
-print("Records loaded:", len(records))
+def load(path, money):
+    with path.open(newline="", encoding="utf-8-sig") as file:
+        rows = list(csv.DictReader(file))
+    for row in rows:
+        for column in money:
+            row[column] = optional_paise(row[column])
+    return rows
 
 
-# ==========================================
-# 4. CREATE SQLITE DATABASE
-# ==========================================
-
-DATABASE.parent.mkdir(
-    parents=True, exist_ok=True
-)
-
-with sqlite3.connect(DATABASE) as connection:
-
-    connection.execute("""
-        CREATE TABLE IF NOT EXISTS reconciliation_results (
-            order_id TEXT PRIMARY KEY,
-            status TEXT NOT NULL,
-            expected_paise INTEGER,
-            actual_paise INTEGER,
-            difference_paise INTEGER
-        )
-    """)
-
-    if "exception_flags" not in {row[1] for row in connection.execute("PRAGMA table_info(reconciliation_results)")}:
-        connection.execute("ALTER TABLE reconciliation_results ADD COLUMN exception_flags TEXT")
-
-    # Rebuild local analytical results on each run.
-    connection.execute(
-        "DELETE FROM reconciliation_results"
-    )
-
-    connection.executemany("""
-        INSERT INTO reconciliation_results (
-            order_id,
-            status,
-            expected_paise,
-            actual_paise,
-            difference_paise, exception_flags
-        )
-        VALUES (?, ?, ?, ?, ?, ?)
-    """, records)
-
-    connection.execute("""
-        CREATE INDEX IF NOT EXISTS idx_status
-        ON reconciliation_results(status)
-    """)
-
-    # ======================================
-    # 5. QUERY EXCEPTION CATEGORIES
-    # ======================================
-
-    print("\n=== EXCEPTION SUMMARY ===")
-
-    summary = connection.execute("""
-        SELECT status, COUNT(*)
-        FROM reconciliation_results
-        GROUP BY status
-        ORDER BY status
-    """).fetchall()
-
-    for status, count in summary:
-        print(f"{status}: {count}")
-
-    # ======================================
-    # 6. CALCULATE POTENTIAL SHORTFALL
-    # ======================================
-
-    shortfall_paise = connection.execute("""
-        SELECT COALESCE(
-            SUM(
-                CASE
-                    WHEN difference_paise > 0
-                    THEN difference_paise
-                    ELSE 0
-                END
-            ),
-            0
-        )
-        FROM reconciliation_results
-    """).fetchone()[0]
-
-    shortfall_rupees = (
-        Decimal(shortfall_paise) / Decimal(100)
-    )
-
-    print("\n=== FINANCIAL SUMMARY ===")
-    print(
-        f"Potential shortfall: INR {shortfall_rupees:.2f}"
-    )
-
-    # ======================================
-    # 7. FIND THE BIGGEST SHORTFALLS
-    # ======================================
-
-    print("\n=== TOP 5 POTENTIAL SHORTFALLS ===")
-
-    top_cases = connection.execute("""
-        SELECT
-            order_id,
-            status,
-            difference_paise
-        FROM reconciliation_results
-
-        WHERE difference_paise > 0
-
-        ORDER BY difference_paise DESC
-        LIMIT 5
-    """).fetchall()
-
-    for order_id, status, difference in top_cases:
-
-        amount = Decimal(difference) / 100
-
-        print(
-            f"{order_id} | {status} | INR {amount:.2f}"
-        )
+def main():
+    report = PROCESSED / "reconciliation_report.csv"
+    if not report.exists():
+        raise SystemExit("Run reconcile.py first.")
+    orders = load(report, ORDER_MONEY)
+    batches = load(PROCESSED / "settlement_batches.csv", BATCH_MONEY)
+    with sqlite3.connect(DATABASE) as db:
+        db.executescript(SCHEMA)
+        db.executemany(f"INSERT INTO reconciliation_results VALUES ({','.join('?' * 15)})",
+                       [tuple(r.values()) for r in orders])
+        db.executemany(f"INSERT INTO settlement_batches VALUES ({','.join('?' * 9)})",
+                       [tuple(b.values()) for b in batches])
+        print(f"Loaded {len(orders):,} orders and {len(batches)} payouts into {DATABASE.name}")
+        for title, sql in QUERIES.items():
+            print(f"\n=== {title.upper()} ===")
+            for *fields, amount in db.execute(sql):   # last column is always paise
+                print(" | ".join(map(str, fields)), "| INR", rupees(amount) or "-")
 
 
-print("\nDatabase created successfully!")
-print("Location:", DATABASE)
+if __name__ == "__main__":
+    main()

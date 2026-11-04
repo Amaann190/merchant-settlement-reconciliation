@@ -1,119 +1,61 @@
+"""Compare every reconciled order and payout batch with the generator's injected ground truth."""
+from __future__ import annotations
 
-from pathlib import Path
-from decimal import Decimal
+import argparse
 import csv
+import sys
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 
-TRUTH_FILE = ROOT / "data/generated/ground_truth.csv"
-REPORT_FILE = ROOT / "data/processed/reconciliation_report.csv"
+
+def load(path: Path, key: str):
+    with path.open(newline="", encoding="utf-8-sig") as file:
+        rows = {}
+        for row in csv.DictReader(file):
+            if row[key] in rows:
+                raise ValueError(f"duplicate {key} {row[key]} in {path.name}")
+            rows[row[key]] = row
+    return rows
 
 
-# Read a CSV and organize rows by order ID.
-def load_by_order_id(path):
-    records = {}
-
-    with path.open(
-        newline="", encoding="utf-8-sig"
-    ) as file:
-        reader = csv.DictReader(file)
-
-        for row in reader:
-            order_id = row["order_id"]
-
-            if order_id in records:
-                raise ValueError(
-                    f"Duplicate order ID: {order_id}"
-                )
-
-            records[order_id] = row
-
-    return records
+def compare(truth, actual, label):
+    errors = [f"{label} {k}: missing from report" for k in truth.keys() - actual.keys()]
+    errors += [f"{label} {k}: not in ground truth" for k in actual.keys() - truth.keys()]
+    for key in sorted(truth.keys() & actual.keys()):
+        want, got = truth[key], actual[key]
+        got_status = got["status"]
+        if want["expected_status"] != got_status:
+            errors.append(f"{label} {key}: status {got_status}, expected {want['expected_status']}")
+        if want["expected_difference"] != got["difference"]:
+            errors.append(f"{label} {key}: difference {got['difference'] or 'blank'}, "
+                          f"expected {want['expected_difference'] or 'blank'}")
+    return errors
 
 
-truth = load_by_order_id(TRUTH_FILE)
-report = load_by_order_id(REPORT_FILE)
-
-print("\n=== GROUND TRUTH VALIDATION ===")
-print("Ground truth orders:", len(truth))
-print("Reconciliation results:", len(report))
-
-# Check for orders missing from either dataset.
-missing = truth.keys() - report.keys()
-unexpected = report.keys() - truth.keys()
-
-print("Missing result IDs:", len(missing))
-print("Unexpected result IDs:", len(unexpected))
-
-# Compare classifications and shortfall amounts.
-correct_statuses = 0
-status_errors = []
-amount_errors = []
-
-expected_total = Decimal("0.00")
-actual_total = Decimal("0.00")
-
-for order_id, expected in truth.items():
-
-    if order_id not in report:
-        continue
-
-    actual = report[order_id]
-
-    # Compare the classification.
-    if expected["expected_status"] == actual["status"]:
-        correct_statuses += 1
-    else:
-        status_errors.append(order_id)
-
-    # Read the known expected shortfall.
-    expected_shortfall = Decimal(
-        expected["expected_shortfall"]
-    )
-
-    # Empty differences are treated as zero
-    # for statuses without a shortfall.
-    difference = Decimal(
-        actual["difference"]
-    ) if actual["difference"] else Decimal("0.00")
-
-    # Only positive shortfalls are counted.
-    if difference > 0:
-        actual_shortfall = max(
-            difference, Decimal("0.00")
-        )
-    else:
-        actual_shortfall = Decimal("0.00")
-
-    expected_total += expected_shortfall
-    actual_total += actual_shortfall
-
-    if expected_shortfall != actual_shortfall:
-        amount_errors.append(order_id)
+def verify(generated: Path, processed: Path):
+    errors = compare(load(generated / "ground_truth.csv", "order_id"),
+                     load(processed / "reconciliation_report.csv", "order_id"), "order")
+    errors += compare(load(generated / "ground_truth_batches.csv", "settlement_id"),
+                      load(processed / "settlement_batches.csv", "settlement_id"), "payout")
+    return errors
 
 
-# Calculate classification accuracy.
-accuracy = (
-    correct_statuses / len(truth) * 100
-    if truth else 0
-)
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--generated", type=Path, default=ROOT / "data/generated")
+    parser.add_argument("--processed", type=Path, default=ROOT / "data/processed")
+    args = parser.parse_args()
+    errors = verify(args.generated, args.processed)
+    if errors:
+        print(f"VALIDATION FAILED: {len(errors)} discrepancies")
+        print("\n".join(errors[:20]))
+        sys.exit(1)
+    orders = sum(1 for _ in open(args.generated / "ground_truth.csv", encoding="utf-8")) - 1
+    batches = sum(1 for _ in open(args.generated / "ground_truth_batches.csv", encoding="utf-8")) - 1
+    print(f"ALL CHECKS PASSED: {orders:,} orders and {batches} payout batches match ground truth "
+          "(status and amount, to the paisa).")
 
-print("\n=== CLASSIFICATION RESULTS ===")
-print("Correct classifications:", correct_statuses)
-print("Classification accuracy:", f"{accuracy:.2f}%")
-print("Incorrect classifications:", len(status_errors))
 
-print("\n=== FINANCIAL RESULTS ===")
-print("Expected shortfall: INR", expected_total)
-print("Detected shortfall: INR", actual_total)
-print("Orders with incorrect shortfall:", len(amount_errors))
-
-if missing or unexpected or status_errors or amount_errors:
-    print("\nVALIDATION FAILED")
-
-    print("Sample classification errors:", status_errors[:5])
-    print("Sample amount errors:", amount_errors[:5])
-
-    raise AssertionError("Reconciliation discrepancies found.")
-
-print("\nALL VALIDATION CHECKS PASSED!")
+if __name__ == "__main__":
+    main()

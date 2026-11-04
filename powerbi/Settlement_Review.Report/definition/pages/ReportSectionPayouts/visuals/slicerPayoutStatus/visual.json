@@ -1,12 +1,12 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.1.0/schema.json",
-  "name": "visual0004",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "slicerPayoutStatus",
   "position": {
-    "x": 944,
+    "x": 948,
     "y": 12,
-    "width": 322,
-    "height": 240,
     "z": 3,
+    "height": 140,
+    "width": 320,
     "tabOrder": 3
   },
   "visual": {
@@ -20,18 +20,34 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "Ledger"
+                      "Entity": "Payouts"
                     }
                   },
-                  "Property": "Outcome"
+                  "Property": "Status"
                 }
               },
-              "queryRef": "Ledger.Outcome",
-              "nativeQueryRef": "Outcome"
+              "queryRef": "Payouts.Status",
+              "nativeQueryRef": "Status",
+              "active": true
             }
           ]
         }
       }
+    },
+    "objects": {
+      "data": [
+        {
+          "properties": {
+            "mode": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Basic'"
+                }
+              }
+            }
+          }
+        }
+      ]
     },
     "visualContainerObjects": {
       "title": [
@@ -47,7 +63,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Filter by outcome'"
+                  "Value": "'Filter by payout status'"
                 }
               }
             }
