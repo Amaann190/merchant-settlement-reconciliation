@@ -1,3 +1,5 @@
+<picture><source media="(prefers-color-scheme: light)" srcset="docs/images/banner-light.svg"><img src="docs/images/banner.svg" width="100%" alt="Merchant Settlement Reconciliation: INR 25.4 lakh of recoverable gaps traced across books, gateway and bank"></picture>
+
 # Merchant Settlement Reconciliation
 
 **Three-way payment reconciliation for an Indian online merchant: merchant books → payment gateway → bank statement.**
