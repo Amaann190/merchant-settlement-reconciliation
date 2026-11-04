@@ -1,0 +1,161 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.1.0/schema.json",
+  "name": "visual0006",
+  "position": {
+    "x": 12,
+    "y": 420,
+    "width": 1254,
+    "height": 305,
+    "z": 5,
+    "tabOrder": 5
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Ledger"
+                    }
+                  },
+                  "Property": "Order ID"
+                }
+              },
+              "queryRef": "Ledger.Order ID",
+              "nativeQueryRef": "Order ID"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Ledger"
+                    }
+                  },
+                  "Property": "Outcome"
+                }
+              },
+              "queryRef": "Ledger.Outcome",
+              "nativeQueryRef": "Outcome"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Ledger"
+                    }
+                  },
+                  "Property": "Exception flags"
+                }
+              },
+              "queryRef": "Ledger.Exception flags",
+              "nativeQueryRef": "Exception flags"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Ledger"
+                    }
+                  },
+                  "Property": "Expected net"
+                }
+              },
+              "queryRef": "Ledger.Expected net",
+              "nativeQueryRef": "Expected net"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Ledger"
+                    }
+                  },
+                  "Property": "Settled net"
+                }
+              },
+              "queryRef": "Ledger.Settled net",
+              "nativeQueryRef": "Settled net"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Ledger"
+                    }
+                  },
+                  "Property": "Difference"
+                }
+              },
+              "queryRef": "Ledger.Difference",
+              "nativeQueryRef": "Difference"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Ledger"
+                    }
+                  },
+                  "Property": "Shortfall INR"
+                }
+              },
+              "queryRef": "Ledger.Shortfall INR",
+              "nativeQueryRef": "Shortfall INR"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "Ledger"
+                  }
+                },
+                "Property": "Shortfall INR"
+              }
+            },
+            "direction": "Descending"
+          }
+        ]
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Order investigation - amounts in INR'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

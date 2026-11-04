@@ -1,0 +1,93 @@
+{
+  "name": "Settlement_Review",
+  "compatibilityLevel": 1601,
+  "model": {
+    "culture": "en-US",
+    "defaultPowerBIDataSourceVersion": "powerBI_V3",
+    "tables": [
+      {
+        "name": "Ledger",
+        "columns": [
+          {
+            "name": "Order ID",
+            "dataType": "string",
+            "sourceColumn": "order_id",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Outcome",
+            "dataType": "string",
+            "sourceColumn": "status",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Expected net",
+            "dataType": "decimal",
+            "sourceColumn": "expected_net",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Settled net",
+            "dataType": "decimal",
+            "sourceColumn": "actual_net",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Difference",
+            "dataType": "decimal",
+            "sourceColumn": "difference",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Exception flags",
+            "dataType": "string",
+            "sourceColumn": "exception_flags",
+            "summarizeBy": "none"
+          }
+        ],
+        "measures": [
+          {
+            "name": "Orders",
+            "expression": "COUNTROWS(Ledger)",
+            "formatString": "#,0"
+          },
+          {
+            "name": "Matched share",
+            "expression": "DIVIDE(COALESCE(CALCULATE([Orders], KEEPFILTERS(Ledger[Outcome] = \"MATCHED\")), 0), [Orders])",
+            "formatString": "0.00%"
+          },
+          {
+            "name": "Shortfall INR",
+            "expression": "COALESCE(SUMX(FILTER(Ledger, Ledger[Difference] > 0), Ledger[Difference]), 0)",
+            "formatString": "#,0.00"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Ledger",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = Csv.Document(File.Contents(DataFolder & \"/reconciliation_report.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),",
+                "    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    Clean = Table.ReplaceValue(Headers, \"\", null, Replacer.ReplaceValue, Table.ColumnNames(Headers)),",
+                "    Typed = Table.TransformColumnTypes(Clean, {{\"order_id\", type text}, {\"status\", type text}, {\"expected_net\", Currency.Type}, {\"actual_net\", Currency.Type}, {\"difference\", Currency.Type}}, \"en-US\")",
+                "in",
+                "    Typed"
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "expressions": [
+      {
+        "name": "DataFolder",
+        "kind": "m",
+        "expression": "\"C:\\Users\\Amaan\\Desktop\\Fintech-Portfolio\\merchant-settlement-reconciliation\\data\\processed\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]"
+      }
+    ]
+  }
+}

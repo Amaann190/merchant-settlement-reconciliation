@@ -249,3 +249,21 @@ data/processed/
 
 # Keep small, synthetic example datasets
 !data/sample/
+
+# Power BI user-specific cache
+**/.pbi/cache.abf
+**/.pbi/localSettings.json
+**/.pbi/unappliedChanges.json
+
+# Intermediate Desktop Save As project
+/powerbi/Settlement_Review.pbix.Report/
+/powerbi/Settlement_Review.pbix.SemanticModel/
+/powerbi/Settlement_Review.pbix.pbip
+
+# Ship the small synthetic refresh source alongside the populated report.
+!data/processed/
+data/processed/*
+!data/processed/reconciliation_report.csv
+
+# Recreated by the seeded ledger generator
+/data/generated/
