@@ -231,3 +231,7 @@ merchant-settlement-reconciliation/
 - The fee contract is a flat 2% for every payment method. In reality UPI, cards and net banking are priced differently.
 - The holiday calendar covers October 2026 national holidays only. State-specific bank holidays would need adding.
 - A short-credited payout's loss is not allocated to individual orders.
+
+## Author
+
+Built by [Amaan Shaikh](https://amaanshaikh.dev), fintech data analyst. More projects and résumé at [amaanshaikh.dev](https://amaanshaikh.dev).
